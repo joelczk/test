@@ -1,0 +1,27 @@
+name: Security Check
+
+on:
+  push:
+    branches: [ master ]
+    
+jobs:
+  autopep8:
+    runs-on: ubuntu-latest
+    steps:
+      - name: vera code check
+      - uses:  veracode/veracode-pipeline-scan-results-to-sarif@v0.1.5
+        with:
+          pipeline-results-json: results.json
+          output-results-sarif: veracode-results.sarif
+          source-base-path-1: "^com/veracode:src/main/code"
+          source-base-path-2: "^WEB-INF:src/main/code"
+          finding-rule-level: "3:1:0"
+  sast-cfn-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: sast-lint
+    - uses: actions/checkout@v2
+    - uses: grolston/cfn-security@v1
+      with:
+        cloudformation_directory: './reports/' ## change to your template directory
+        scanner: "cfn-lint"
